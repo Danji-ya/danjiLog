@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#2a78d6"/>
+  <g fill="#ffffff">
+    <!-- ears -->
+    <path d="M150 190 L120 100 L215 165 Z"/>
+    <path d="M362 190 L392 100 L297 165 Z"/>
+    <!-- face -->
+    <circle cx="256" cy="270" r="118"/>
+  </g>
+  <g fill="#2a78d6">
+    <!-- eyes -->
+    <ellipse cx="215" cy="260" rx="12" ry="16"/>
+    <ellipse cx="297" cy="260" rx="12" ry="16"/>
+    <!-- nose -->
+    <path d="M256 292 L244 306 L268 306 Z"/>
+    <!-- mouth -->
+    <path d="M256 306 Q256 322 236 324" stroke="#2a78d6" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M256 306 Q256 322 276 324" stroke="#2a78d6" stroke-width="6" fill="none" stroke-linecap="round"/>
+  </g>
+  <g stroke="#2a78d6" stroke-width="5" stroke-linecap="round">
+    <!-- whiskers -->
+    <line x1="150" y1="270" x2="90" y2="260"/>
+    <line x1="150" y1="285" x2="90" y2="290"/>
+    <line x1="362" y1="270" x2="422" y2="260"/>
+    <line x1="362" y1="285" x2="422" y2="290"/>
+  </g>
+</svg>

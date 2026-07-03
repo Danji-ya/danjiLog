@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --chart-water: #2a78d6;
+  --chart-food: #eb6834;
+  --chart-grid: #e1e0d9;
+  --chart-axis: #898781;
+}
+html.dark {
+  --chart-water: #3987e5;
+  --chart-food: #d95926;
+  --chart-grid: #2c2c2a;
+  --chart-axis: #898781;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    @apply bg-ios-gray-100 text-ios-gray-900 antialiased;
+    font-feature-settings: "tnum";
+  }
+
+  html.dark body {
+    @apply bg-black text-white;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+
+  input,
+  button,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-8px);
+  }
+  40%,
+  80% {
+    transform: translateX(8px);
+  }
+}
