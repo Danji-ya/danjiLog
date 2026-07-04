@@ -18,6 +18,7 @@ export default function TimeWheelPicker({ value, onChange }: TimeWheelPickerProp
         options={HOUR_OPTIONS}
         value={value.hour}
         onChange={(hour) => onChange({ ...value, hour })}
+        loop
         className="w-16"
         aria-label="시"
       />
@@ -26,6 +27,7 @@ export default function TimeWheelPicker({ value, onChange }: TimeWheelPickerProp
         options={MINUTE_OPTIONS}
         value={value.minute}
         onChange={(minute) => onChange({ ...value, minute })}
+        loop
         className="w-16"
         aria-label="분"
       />

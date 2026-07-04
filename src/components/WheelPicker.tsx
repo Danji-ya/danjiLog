@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useHaptic } from "@/hooks/useHaptic";
 
 export interface WheelPickerOption {
@@ -12,9 +12,14 @@ interface WheelPickerProps {
   onChange: (value: number) => void;
   itemHeight?: number;
   visibleCount?: number;
+  /** true면 마지막 항목 다음에 첫 항목으로 자연스럽게 이어지는 무한 순환 스크롤이 됩니다. */
+  loop?: boolean;
   className?: string;
   "aria-label"?: string;
 }
+
+// loop 모드에서 옵션 배열을 반복할 횟수(홀수, 가운데 블록을 기준 위치로 사용)
+const LOOP_REPEAT = 7;
 
 /**
  * iOS 스타일 롤러(Wheel) 피커.
@@ -26,6 +31,7 @@ export default function WheelPicker({
   onChange,
   itemHeight = 44,
   visibleCount = 5,
+  loop = false,
   className = "",
   "aria-label": ariaLabel,
 }: WheelPickerProps) {
@@ -36,17 +42,27 @@ export default function WheelPicker({
   const isProgrammaticScroll = useRef(false);
 
   const padding = (itemHeight * (visibleCount - 1)) / 2;
+  const middleBlock = Math.floor(LOOP_REPEAT / 2);
+
+  // loop 모드에서는 원본 옵션을 여러 벌 이어붙여 렌더링합니다.
+  // 각 블록은 원본을 그대로 반복한 것이라 인덱스 i의 값은 options[i % options.length]와 동일합니다.
+  const displayOptions = useMemo(
+    () => (loop ? Array.from({ length: LOOP_REPEAT }, () => options).flat() : options),
+    [loop, options]
+  );
 
   const indexOfValue = (v: number) => {
     const idx = options.findIndex((o) => o.value === v);
     return idx === -1 ? 0 : idx;
   };
 
-  // value prop이 외부에서 바뀌면 해당 위치로 스크롤
+  const targetIndex = (v: number) => (loop ? middleBlock * options.length : 0) + indexOfValue(v);
+
+  // value prop이 외부에서 바뀌면 해당 위치로 스크롤 (loop 모드에서는 항상 가운데 블록 기준)
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const idx = indexOfValue(value);
+    const idx = targetIndex(value);
     const targetTop = idx * itemHeight;
     if (Math.abs(el.scrollTop - targetTop) > 1) {
       isProgrammaticScroll.current = true;
@@ -54,7 +70,7 @@ export default function WheelPicker({
     }
     lastIndexRef.current = idx;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, options, itemHeight]);
+  }, [value, options, itemHeight, loop]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -64,7 +80,7 @@ export default function WheelPicker({
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
       const rawIndex = Math.round(el.scrollTop / itemHeight);
-      const clamped = Math.min(Math.max(rawIndex, 0), options.length - 1);
+      const clamped = Math.min(Math.max(rawIndex, 0), displayOptions.length - 1);
 
       if (clamped !== lastIndexRef.current && !isProgrammaticScroll.current) {
         lastIndexRef.current = clamped;
@@ -73,11 +89,23 @@ export default function WheelPicker({
 
       scrollTimeoutRef.current = setTimeout(() => {
         isProgrammaticScroll.current = false;
-        const finalIndex = Math.min(
+        let finalIndex = Math.min(
           Math.max(Math.round(el.scrollTop / itemHeight), 0),
-          options.length - 1
+          displayOptions.length - 1
         );
-        const option = options[finalIndex];
+
+        // 가운데 블록에서 너무 멀어졌으면, 같은 패턴이 반복되는 블록이라 티 나지 않게
+        // 가운데 블록의 대응 위치로 즉시(비-스무스) 되돌려 앞뒤로 순환할 여유를 계속 확보합니다.
+        if (loop) {
+          const block = Math.floor(finalIndex / options.length);
+          if (block !== middleBlock) {
+            finalIndex = middleBlock * options.length + (finalIndex % options.length);
+            isProgrammaticScroll.current = true;
+            el.scrollTop = finalIndex * itemHeight;
+          }
+        }
+
+        const option = displayOptions[finalIndex];
         if (option && option.value !== value) {
           onChange(option.value);
         }
@@ -90,7 +118,7 @@ export default function WheelPicker({
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options, itemHeight, value, onChange]);
+  }, [displayOptions, itemHeight, value, onChange, loop, options.length]);
 
   const handleItemClick = (idx: number) => {
     const el = containerRef.current;
@@ -119,11 +147,11 @@ export default function WheelPicker({
         className="no-scrollbar h-full snap-y snap-mandatory overflow-y-scroll"
         style={{ paddingTop: padding, paddingBottom: padding }}
       >
-        {options.map((option, idx) => {
+        {displayOptions.map((option, idx) => {
           const selected = option.value === value;
           return (
             <div
-              key={option.value}
+              key={loop ? idx : option.value}
               role="option"
               aria-selected={selected}
               onClick={() => handleItemClick(idx)}
