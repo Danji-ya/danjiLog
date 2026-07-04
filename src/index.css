@@ -19,6 +19,9 @@ html.dark {
   html {
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior-y: none;
+    /* 페이지마다 세로 스크롤 유무가 달라 스크롤바 폭만큼 콘텐츠 영역 너비가
+       밀리고 당겨지는 것을 막기 위해 스크롤바 자리를 항상 확보합니다. */
+    scrollbar-gutter: stable;
   }
 
   body {
