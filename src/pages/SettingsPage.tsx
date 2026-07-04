@@ -30,13 +30,13 @@ export default function SettingsPage() {
             role="switch"
             aria-checked={isDark}
             onClick={toggle}
-            className={`relative h-[31px] w-[51px] rounded-full transition-colors ${
+            className={`relative h-[31px] w-[51px] shrink-0 rounded-full transition-colors ${
               isDark ? "bg-ios-green" : "bg-ios-gray-300 dark:bg-ios-gray-700"
             }`}
           >
             <span
-              className={`absolute top-0.5 h-[27px] w-[27px] rounded-full bg-white shadow transition-transform ${
-                isDark ? "translate-x-[22px]" : "translate-x-0.5"
+              className={`absolute left-0.5 top-0.5 h-[27px] w-[27px] rounded-full bg-white shadow transition-transform ${
+                isDark ? "translate-x-5" : "translate-x-0"
               }`}
             />
           </button>
