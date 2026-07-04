@@ -1,23 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#2a78d6"/>
+  <rect width="512" height="512" fill="#FCD34D"/>
   <g transform="translate(256,256) scale(0.78) translate(-256,-256)">
-    <g fill="#ffffff">
-      <path d="M150 190 L120 100 L215 165 Z"/>
-      <path d="M362 190 L392 100 L297 165 Z"/>
-      <circle cx="256" cy="270" r="118"/>
-    </g>
-    <g fill="#2a78d6">
-      <ellipse cx="215" cy="260" rx="12" ry="16"/>
-      <ellipse cx="297" cy="260" rx="12" ry="16"/>
-      <path d="M256 292 L244 306 L268 306 Z"/>
-      <path d="M256 306 Q256 322 236 324" stroke="#2a78d6" stroke-width="6" fill="none" stroke-linecap="round"/>
-      <path d="M256 306 Q256 322 276 324" stroke="#2a78d6" stroke-width="6" fill="none" stroke-linecap="round"/>
-    </g>
-    <g stroke="#2a78d6" stroke-width="5" stroke-linecap="round">
-      <line x1="150" y1="270" x2="90" y2="260"/>
-      <line x1="150" y1="285" x2="90" y2="290"/>
-      <line x1="362" y1="270" x2="422" y2="260"/>
-      <line x1="362" y1="285" x2="422" y2="290"/>
+    <path fill="#ffffff" d="
+      M 256 434
+      C 168 434, 122 388, 122 300
+      C 122 270, 122 240, 138 218
+      L 136 120
+      L 256 197
+      L 376 120
+      L 374 218
+      C 390 240, 390 270, 390 300
+      C 390 388, 344 434, 256 434
+      Z
+    "/>
+    <g fill="#92400E">
+      <circle cx="215" cy="292" r="13"/>
+      <circle cx="297" cy="292" r="13"/>
+      <path d="M256 322 L242 338 L270 338 Z"/>
     </g>
   </g>
 </svg>
