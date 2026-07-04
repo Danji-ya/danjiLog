@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Droplet, Soup } from "lucide-react";
 import { usePrimaryCat } from "@/hooks/useCats";
 import { useStats } from "@/hooks/useStats";
 import StatsChart from "@/components/StatsChart";
@@ -64,7 +65,7 @@ export default function StatsPage() {
         <>
           <section className="overflow-hidden rounded-ios-lg bg-white shadow-card dark:bg-ios-gray-900">
             <div className="flex items-center gap-1.5 px-4 pt-4 text-sm font-semibold text-ios-gray-900 dark:text-white">
-              <span>💧</span>
+              <Droplet className="h-4 w-4" />
               <span>하루 음수량</span>
             </div>
             <div className="px-2 pt-2">
@@ -75,7 +76,7 @@ export default function StatsPage() {
 
           <section className="overflow-hidden rounded-ios-lg bg-white shadow-card dark:bg-ios-gray-900">
             <div className="flex items-center gap-1.5 px-4 pt-4 text-sm font-semibold text-ios-gray-900 dark:text-white">
-              <span>🍚</span>
+              <Soup className="h-4 w-4" />
               <span>하루 식사량</span>
             </div>
             <div className="px-2 pt-2">

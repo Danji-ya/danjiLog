@@ -1,10 +1,11 @@
 import { NavLink } from "react-router-dom";
+import { BarChart3, Calendar, Home, Settings } from "lucide-react";
 
 const NAV_ITEMS = [
-  { to: "/", label: "홈", icon: "🏠", end: true },
-  { to: "/stats", label: "통계", icon: "📊", end: false },
-  { to: "/calendar", label: "캘린더", icon: "📅", end: false },
-  { to: "/settings", label: "설정", icon: "⚙️", end: false },
+  { to: "/", label: "홈", icon: Home, end: true },
+  { to: "/stats", label: "통계", icon: BarChart3, end: false },
+  { to: "/calendar", label: "캘린더", icon: Calendar, end: false },
+  { to: "/settings", label: "설정", icon: Settings, end: false },
 ];
 
 export default function BottomNav() {
@@ -24,7 +25,7 @@ export default function BottomNav() {
               }`
             }
           >
-            <span className="text-xl leading-none">{item.icon}</span>
+            <item.icon className="h-6 w-6" strokeWidth={2} />
             <span className="font-medium">{item.label}</span>
           </NavLink>
         ))}

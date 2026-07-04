@@ -1,3 +1,5 @@
+import { Droplet, Soup } from "lucide-react";
+
 interface TodaySummaryProps {
   water: number;
   food: number;
@@ -9,7 +11,7 @@ export default function TodaySummary({ water, food, loading }: TodaySummaryProps
     <div className="grid grid-cols-2 gap-3">
       <div className="rounded-ios-lg bg-white p-4 shadow-card dark:bg-ios-gray-900">
         <div className="flex items-center gap-1.5 text-sm text-ios-gray-500 dark:text-ios-gray-400">
-          <span>💧</span>
+          <Droplet className="h-4 w-4" />
           <span>오늘 물</span>
         </div>
         <p className="mt-1.5 text-2xl font-bold tabular-nums text-water">
@@ -19,7 +21,7 @@ export default function TodaySummary({ water, food, loading }: TodaySummaryProps
       </div>
       <div className="rounded-ios-lg bg-white p-4 shadow-card dark:bg-ios-gray-900">
         <div className="flex items-center gap-1.5 text-sm text-ios-gray-500 dark:text-ios-gray-400">
-          <span>🍚</span>
+          <Soup className="h-4 w-4" />
           <span>오늘 식사</span>
         </div>
         <p className="mt-1.5 text-2xl font-bold tabular-nums text-food">

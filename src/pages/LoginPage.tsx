@@ -1,4 +1,5 @@
 import { useRef, useState, type KeyboardEvent } from "react";
+import { Cat } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { signInWithFamilyCode } from "@/services/auth";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,8 +41,8 @@ export default function LoginPage() {
       onClick={() => inputRef.current?.focus()}
     >
       <div className="mx-auto flex w-full max-w-sm flex-col items-center">
-        <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-ios-lg bg-white text-3xl shadow-card dark:bg-ios-gray-900">
-          🐱
+        <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-ios-lg bg-white shadow-card dark:bg-ios-gray-900">
+          <Cat className="h-9 w-9 text-ios-blue" />
         </div>
         <h1 className="text-2xl font-bold text-ios-gray-900 dark:text-white">danjiLog</h1>
         <p className="mb-10 mt-1 text-sm text-ios-gray-600 dark:text-ios-gray-400">

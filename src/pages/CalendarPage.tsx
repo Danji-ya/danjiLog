@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import dayjs from "@/lib/dayjs";
 import { usePrimaryCat } from "@/hooks/useCats";
 import { useRecords } from "@/hooks/useRecords";
@@ -71,9 +72,9 @@ export default function CalendarPage() {
         type="button"
         onClick={openAdd}
         aria-label="기록 추가"
-        className="fixed bottom-24 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-ios-blue text-3xl font-light text-white shadow-lg transition active:scale-90"
+        className="fixed bottom-24 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-ios-blue text-white shadow-lg transition active:scale-90"
       >
-        +
+        <Plus className="h-7 w-7" strokeWidth={2.5} />
       </button>
 
       <AddRecordModal

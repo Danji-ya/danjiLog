@@ -1,3 +1,4 @@
+import { ChevronRight, Droplet, PawPrint, Soup } from "lucide-react";
 import { formatTime } from "@/utils/date";
 import type { CatRecord } from "@/types";
 
@@ -8,15 +9,15 @@ interface RecordListProps {
 }
 
 const TYPE_META = {
-  water: { label: "물", emoji: "💧" },
-  food: { label: "식사", emoji: "🍚" },
+  water: { label: "물", icon: Droplet },
+  food: { label: "식사", icon: Soup },
 } as const;
 
 export default function RecordList({ records, onSelect, emptyMessage = "아직 기록이 없어요" }: RecordListProps) {
   if (records.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-        <span className="text-3xl">🐾</span>
+        <PawPrint className="h-9 w-9 text-ios-gray-300 dark:text-ios-gray-600" />
         <p className="text-sm text-ios-gray-500 dark:text-ios-gray-400">{emptyMessage}</p>
       </div>
     );
@@ -35,8 +36,8 @@ export default function RecordList({ records, onSelect, emptyMessage = "아직 �
               onClick={() => onSelect(record)}
               className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition active:bg-ios-gray-100 dark:active:bg-ios-gray-800"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ios-gray-100 text-lg dark:bg-ios-gray-800">
-                {meta.emoji}
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ios-gray-100 dark:bg-ios-gray-800">
+                <meta.icon className="h-[18px] w-[18px] text-ios-gray-600 dark:text-ios-gray-300" />
               </span>
               <span className="w-14 shrink-0 tabular-nums text-sm text-ios-gray-500 dark:text-ios-gray-400">
                 {formatTime(record.recorded_at)}
@@ -45,7 +46,7 @@ export default function RecordList({ records, onSelect, emptyMessage = "아직 �
               <span className="text-[15px] font-semibold tabular-nums text-ios-gray-900 dark:text-white">
                 {record.amount_ml}ml
               </span>
-              <span className="text-ios-gray-300 dark:text-ios-gray-600">›</span>
+              <ChevronRight className="h-4 w-4 text-ios-gray-300 dark:text-ios-gray-600" />
             </button>
             {idx < sorted.length - 1 && (
               <div className="ml-[4.25rem] h-px bg-ios-gray-100 dark:bg-ios-gray-800" />

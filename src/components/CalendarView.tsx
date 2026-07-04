@@ -1,3 +1,4 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import dayjs, { type Dayjs } from "@/lib/dayjs";
 import { formatDateKey } from "@/utils/date";
 
@@ -33,10 +34,10 @@ export default function CalendarView({
         <button
           type="button"
           onClick={() => onMonthChange(month.subtract(1, "month"))}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-ios-gray-500 transition active:bg-ios-gray-100 dark:text-ios-gray-400 dark:active:bg-ios-gray-800"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-ios-gray-500 transition active:bg-ios-gray-100 dark:text-ios-gray-400 dark:active:bg-ios-gray-800"
           aria-label="이전 달"
         >
-          ‹
+          <ChevronLeft className="h-5 w-5" />
         </button>
         <p className="text-base font-semibold text-ios-gray-900 dark:text-white">
           {month.format("YYYY년 M월")}
@@ -44,10 +45,10 @@ export default function CalendarView({
         <button
           type="button"
           onClick={() => onMonthChange(month.add(1, "month"))}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-ios-gray-500 transition active:bg-ios-gray-100 dark:text-ios-gray-400 dark:active:bg-ios-gray-800"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-ios-gray-500 transition active:bg-ios-gray-100 dark:text-ios-gray-400 dark:active:bg-ios-gray-800"
           aria-label="다음 달"
         >
-          ›
+          <ChevronRight className="h-5 w-5" />
         </button>
       </div>
 

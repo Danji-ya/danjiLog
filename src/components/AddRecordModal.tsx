@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Droplet, Soup } from "lucide-react";
 import dayjs from "@/lib/dayjs";
 import BottomSheet from "@/components/BottomSheet";
 import TimeWheelPicker, { type TimeValue } from "@/components/TimeWheelPicker";
@@ -17,9 +18,9 @@ interface AddRecordModalProps {
   targetDate?: string;
 }
 
-const TYPE_META: Record<RecordType, { label: string; emoji: string; color: string }> = {
-  water: { label: "물", emoji: "💧", color: "bg-water" },
-  food: { label: "식사", emoji: "🍚", color: "bg-food" },
+const TYPE_META: Record<RecordType, { label: string; icon: typeof Droplet; color: string }> = {
+  water: { label: "물", icon: Droplet, color: "bg-water" },
+  food: { label: "식사", icon: Soup, color: "bg-food" },
 };
 
 function nowToTimeValue(): TimeValue {
@@ -113,7 +114,10 @@ export default function AddRecordModal({
               onClick={() => handleSelectType(t)}
               className="flex flex-col items-center gap-2 rounded-ios-lg bg-ios-gray-100 py-6 transition active:scale-95 dark:bg-ios-gray-800"
             >
-              <span className="text-4xl">{TYPE_META[t].emoji}</span>
+              {(() => {
+                const Icon = TYPE_META[t].icon;
+                return <Icon className="h-9 w-9 text-ios-gray-700 dark:text-ios-gray-300" />;
+              })()}
               <span className="text-base font-semibold text-ios-gray-900 dark:text-white">
                 {TYPE_META[t].label}
               </span>
@@ -130,13 +134,17 @@ export default function AddRecordModal({
                 key={t}
                 type="button"
                 onClick={() => setType(t)}
-                className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition ${
                   type === t
                     ? `${TYPE_META[t].color} text-white`
                     : "bg-ios-gray-100 text-ios-gray-500 dark:bg-ios-gray-800 dark:text-ios-gray-400"
                 }`}
               >
-                {TYPE_META[t].emoji} {TYPE_META[t].label}
+                {(() => {
+                  const Icon = TYPE_META[t].icon;
+                  return <Icon className="h-4 w-4" />;
+                })()}
+                {TYPE_META[t].label}
               </button>
             ))}
           </div>

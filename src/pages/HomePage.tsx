@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Cat, Plus } from "lucide-react";
 import dayjs from "@/lib/dayjs";
 import { usePrimaryCat } from "@/hooks/useCats";
 import { useTodaySummary } from "@/hooks/useTodaySummary";
@@ -35,7 +36,7 @@ export default function HomePage() {
   if (!cat) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 py-24 text-center text-ios-gray-500">
-        <span className="text-3xl">🐱</span>
+        <Cat className="h-9 w-9 text-ios-gray-400" />
         <p className="text-sm">등록된 고양이가 없어요.</p>
         <p className="text-xs text-ios-gray-400">Supabase에서 cats 테이블에 고양이를 추가해주세요.</p>
       </div>
@@ -64,9 +65,9 @@ export default function HomePage() {
         type="button"
         onClick={openAdd}
         aria-label="기록 추가"
-        className="fixed bottom-24 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-ios-blue text-3xl font-light text-white shadow-lg transition active:scale-90"
+        className="fixed bottom-24 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-ios-blue text-white shadow-lg transition active:scale-90"
       >
-        +
+        <Plus className="h-7 w-7" strokeWidth={2.5} />
       </button>
 
       <AddRecordModal
