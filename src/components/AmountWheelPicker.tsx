@@ -6,7 +6,7 @@ interface AmountWheelPickerProps {
   onChange: (value: number) => void;
 }
 
-// 0 ~ 500ml, 5ml 단위 롤러
+// 0 ~ 500ml, 1ml 단위 롤러
 export default function AmountWheelPicker({ value, onChange }: AmountWheelPickerProps) {
   return (
     <div className="flex items-center justify-center gap-2">
