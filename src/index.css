@@ -48,6 +48,15 @@ html.dark {
     -webkit-user-select: none;
     user-select: none;
   }
+
+  /* Radix Dialog(Sheet)가 열릴 때 react-remove-scroll-bar가 스크롤바 폭만큼
+     body에 margin/padding-right를 추가로 보정하는데, 위의 scrollbar-gutter: stable로
+     이미 그 자리를 항상 확보해두고 있어 이중으로 밀리는 현상이 생깁니다.
+     Radix가 주입하는 스타일보다 확실히 이기도록 선택자 특이도를 높여 무력화합니다. */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
 }
 
 @layer utilities {
