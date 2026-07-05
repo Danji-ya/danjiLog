@@ -16,6 +16,7 @@ export default function HomePage() {
     food,
     records,
     isLoading: recordsLoading,
+    dataUpdatedAt,
     refetch: refetchSummary,
   } = useTodaySummary(cat?.id);
 
@@ -54,9 +55,16 @@ export default function HomePage() {
     <PullToRefresh onRefresh={async () => { await Promise.all([refetchCat(), refetchSummary()]); }}>
       <div className="flex flex-col gap-5 px-4 pb-28 pt-4">
         <header>
-          <p className="text-sm text-ios-gray-500 dark:text-ios-gray-400">
-            {dayjs().format("YYYY년 M월 D일 (ddd)")}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-ios-gray-500 dark:text-ios-gray-400">
+              {dayjs().format("YYYY년 M월 D일 (ddd)")}
+            </p>
+            {dataUpdatedAt > 0 && (
+              <p className="text-xs text-ios-gray-400 dark:text-ios-gray-500">
+                {dayjs(dataUpdatedAt).format("HH:mm")} 업데이트
+              </p>
+            )}
+          </div>
           <h1 className="text-2xl font-bold text-ios-gray-900 dark:text-white">{cat.name}</h1>
         </header>
 
