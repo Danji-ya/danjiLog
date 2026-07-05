@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Droplet, Soup } from "lucide-react";
 import dayjs from "@/lib/dayjs";
-import BottomSheet from "@/components/BottomSheet";
+import Sheet from "@/components/Sheet";
 import TimeWheelPicker, { type TimeValue } from "@/components/TimeWheelPicker";
 import AmountWheelPicker from "@/components/AmountWheelPicker";
 import { useCreateRecord, useDeleteRecord, useUpdateRecord } from "@/hooks/useRecords";
@@ -100,7 +100,7 @@ export default function AddRecordModal({
   };
 
   return (
-    <BottomSheet
+    <Sheet
       open={open}
       onClose={onClose}
       title={step === "type" ? "무엇을 기록할까요?" : TYPE_META[type ?? "water"].label + " 기록"}
@@ -185,6 +185,6 @@ export default function AddRecordModal({
           </div>
         </div>
       )}
-    </BottomSheet>
+    </Sheet>
   );
 }
