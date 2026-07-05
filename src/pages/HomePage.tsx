@@ -52,7 +52,10 @@ export default function HomePage() {
   }
 
   return (
-    <PullToRefresh onRefresh={async () => { await Promise.all([refetchCat(), refetchSummary()]); }}>
+    <PullToRefresh
+      isDisabled={modalOpen}
+      onRefresh={async () => { await Promise.all([refetchCat(), refetchSummary()]); }}
+    >
       <div className="flex flex-col gap-5 px-4 pb-28 pt-4">
         <header>
           <div className="flex items-center justify-between">

@@ -6,6 +6,8 @@ import { useHaptic } from "@/hooks/useHaptic";
 interface PullToRefreshProps {
   onRefresh: () => void | Promise<void>;
   children: ReactNode;
+  /** 바텀시트 등 모달이 열려 있는 동안 window 터치 제스처와 충돌하지 않도록 끕니다. */
+  isDisabled?: boolean;
 }
 
 const REFRESH_THRESHOLD = 64;
@@ -16,7 +18,7 @@ const MAX_PULL_LENGTH = 100;
  * 이 앱은 body/window가 그대로 스크롤되는 구조라 별도 스크롤 컨테이너 없이
  * window 스크롤을 기준으로 동작하는 usePullToRefresh를 그대로 사용합니다.
  */
-export default function PullToRefresh({ onRefresh, children }: PullToRefreshProps) {
+export default function PullToRefresh({ onRefresh, children, isDisabled }: PullToRefreshProps) {
   const { tap } = useHaptic();
   const crossedThresholdRef = useRef(false);
 
@@ -25,6 +27,7 @@ export default function PullToRefresh({ onRefresh, children }: PullToRefreshProp
     refreshThreshold: REFRESH_THRESHOLD,
     maximumPullLength: MAX_PULL_LENGTH,
     enableResistance: true,
+    isDisabled,
   });
 
   useEffect(() => {

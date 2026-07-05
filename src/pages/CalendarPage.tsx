@@ -53,7 +53,10 @@ export default function CalendarPage() {
   if (!cat) return null;
 
   return (
-    <PullToRefresh onRefresh={async () => { await Promise.all([refetchCat(), refetchRecords()]); }}>
+    <PullToRefresh
+      isDisabled={modalOpen}
+      onRefresh={async () => { await Promise.all([refetchCat(), refetchRecords()]); }}
+    >
       <div className="flex flex-col gap-5 px-4 pb-28 pt-4">
         <header>
           <h1 className="text-2xl font-bold text-ios-gray-900 dark:text-white">캘린더</h1>
