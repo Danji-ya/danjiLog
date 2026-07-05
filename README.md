@@ -1,87 +1,153 @@
 # danjiLog 🐱
 
-가족이 함께 사용하는 고양이 음수량·식사량 기록 PWA입니다. 모바일 사용을 최우선으로 설계했고, iOS 스타일 롤러(Wheel Picker)로 시간과 용량을 입력합니다.
+A **mobile-first Progressive Web App (PWA)** for tracking a family's cat's daily water intake and meals.
 
-## 기술 스택
+Designed for shared household use, danjiLog allows family members to quickly record and monitor their cat's daily activities through a simple passcode-based login while keeping data secure with Supabase Authentication and Row Level Security (RLS).
 
-React · Vite · TypeScript · TailwindCSS · Supabase · PWA · React Router · TanStack Query · React Hook Form · Zod · dayjs
+> **Status:** Personal Project
 
-## 시작하기
+---
 
-### 1. 의존성 설치
+## 🎯 Project Goal
+
+Provide a simple, fast, and mobile-friendly way for family members to record and monitor their cat's daily water intake and meals.
+
+---
+
+## ✨ Features
+
+* Shared passcode login for the whole family
+* Record, edit, and delete water and meal logs
+* View daily, weekly, and monthly statistics
+* Browse records with a calendar view
+* Install as a Progressive Web App with offline support
+* Dark mode support
+
+---
+
+## 🚀 Technical Highlights
+
+* Mobile-first responsive design
+* Secure authentication with Supabase Auth and Row Level Security (RLS)
+* Progressive Web App (PWA) with offline caching
+* Family-oriented shared account experience
+
+---
+
+## 🏗 Architecture
+
+```text
+React (Vite)
+      │
+TanStack Query
+      │
+Supabase
+  ├── Authentication
+  └── PostgreSQL
+```
+
+---
+
+## 🛠 Tech Stack
+
+| Category         | Stack                   |
+| ---------------- | ----------------------- |
+| Frontend         | React, TypeScript, Vite |
+| Styling          | Tailwind CSS            |
+| Backend          | Supabase                |
+| Routing          | React Router            |
+| State Management | TanStack Query          |
+| Forms            | React Hook Form, Zod    |
+| Date             | dayjs                   |
+| PWA              | Service Worker          |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Install dependencies
 
 ```bash
 npm install
 ```
 
-### 2. Supabase 프로젝트 준비
+### 2. Create a Supabase project
 
-1. [supabase.com](https://supabase.com)에서 새 프로젝트를 만듭니다.
-2. SQL Editor에서 `supabase/schema.sql`의 내용을 그대로 실행합니다. (테이블, RLS 정책, 고양이 1마리 기본 생성까지 포함)
-3. **Authentication → Users**에서 가족이 공용으로 쓸 계정을 하나 만듭니다.
-   - 예: 이메일 `family@danjilog.app`, 비밀번호 = 가족이 사용할 6자리 숫자 코드
-   - 앱 로그인 화면은 이메일 없이 **코드(비밀번호) 입력창 하나**만 보여주고, 내부적으로 이 이메일로 로그인합니다.
-4. Authentication 설정에서 이메일 확인(Confirm email)을 꺼두면 가입 즉시 로그인할 수 있습니다.
+1. Create a new Supabase project.
+2. Run `supabase/schema.sql` in the SQL Editor.
+3. Create a shared account in **Authentication → Users**.
+4. (Optional) Disable **Confirm email** to allow immediate login.
 
-### 3. 환경변수 설정
+The provided schema will:
 
-`.env.example`을 복사해 `.env.local`을 만들고 값을 채웁니다.
+* Create the required database tables
+* Apply Row Level Security (RLS) policies
+* Insert a default cat record
+
+---
+
+### 3. Configure environment variables
+
+Copy `.env.example` to `.env.local`.
 
 ```bash
 cp .env.example .env.local
 ```
 
-| 변수 | 설명 |
-|---|---|
-| `VITE_SUPABASE_URL` | Supabase 프로젝트 URL |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon public key |
-| `VITE_FAMILY_LOGIN_EMAIL` | 2번에서 만든 가족 공용 계정의 이메일 |
+| Variable                  | Description                   |
+| ------------------------- | ----------------------------- |
+| `VITE_SUPABASE_URL`       | Supabase project URL          |
+| `VITE_SUPABASE_ANON_KEY`  | Supabase anonymous public key |
+| `VITE_FAMILY_LOGIN_EMAIL` | Shared login email            |
 
-### 4. 개발 서버 실행
+---
+
+### 4. Start the development server
 
 ```bash
 npm run dev
 ```
 
-### 5. 빌드
+---
+
+### 5. Build for production
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## 로그인 방식
+---
 
-가족끼리만 쓰는 앱이라 사용자별 계정 대신 **코드 하나**로 로그인합니다. 화면에는 6자리 숫자 입력창만 있고, 입력이 끝나면 자동으로 제출됩니다. 내부적으로는 Supabase Auth의 이메일/비밀번호 로그인을 그대로 사용하되(RLS가 동작하려면 실제 인증 세션이 필요합니다), 이메일은 코드로 감춰 UI에는 노출하지 않습니다.
+## 🔐 Authentication
 
-> 코드 확인은 Supabase Auth 서버에서 이루어지므로 프론트엔드 번들에 실제 코드 값이 담기지 않습니다.
+Family members sign in using a shared passcode.
 
-## 폴더 구조
+Authentication is handled by Supabase Auth, allowing the application to maintain authenticated sessions required for Row Level Security (RLS). The passcode is verified by Supabase and is never embedded in the client bundle.
 
+---
+
+## 📂 Project Structure
+
+```text
+src
+├── components    # Reusable UI components
+├── contexts      # Authentication context
+├── hooks         # Custom React hooks
+├── layouts       # Shared layouts
+├── lib           # Shared libraries and clients
+├── pages         # Route pages
+├── services      # Supabase data layer
+├── types         # Type definitions
+└── utils         # Utility functions
 ```
-src/
-  components/   재사용 UI 컴포넌트 (WheelPicker, BottomSheet, RecordList ...)
-  pages/        라우트 단위 페이지
-  hooks/        React Query 훅 등 커스텀 훅
-  services/     Supabase 호출 함수 (순수 데이터 레이어)
-  lib/          supabase client, dayjs, queryClient 등 인프라
-  types/        DB/도메인 타입
-  utils/        날짜/통계 계산 유틸
-  layouts/      MobileLayout 등 레이아웃
-  contexts/     AuthContext
-```
 
-## 주요 기능
+---
 
-- 이메일 없이 코드 하나로 로그인, 세션 자동 유지
-- 홈 화면: 오늘 물/식사 합계, 오늘 기록 리스트, `+` 버튼으로 Bottom Sheet 기록 추가
-- iOS 스타일 Wheel Picker로 시간(시/분)·용량(0~500ml, 5ml 단위) 입력, 선택 시 햅틱 진동
-- 기록 탭하면 같은 Bottom Sheet에서 수정/삭제
-- 통계: 오늘/최근 7일/최근 30일 물·식사 그래프, 평균/최대/최소
-- 캘린더: 월별 기록 유무 표시, 날짜 선택 시 해당 날짜 기록 조회 및 추가
-- 설정: 다크모드 토글, 로그아웃, 앱 버전
-- PWA: 홈 화면 설치, 오프라인에서도 React Query 캐시로 최근 데이터 조회 가능
+## 🔮 Future Plans
 
-## 향후 확장
-
-`cats` 테이블은 여러 마리를 저장할 수 있도록 설계되어 있습니다 (현재 UI는 첫 번째 고양이만 사용). 이후 고양이 선택 UI, 약 복용/몸무게/병원 방문 기록, 푸시 알림 등을 추가할 수 있습니다.
+* Multi-cat support
+* Health records
+* Push notifications
+* Data export
+* Home screen widgets
