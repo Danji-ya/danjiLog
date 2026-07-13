@@ -11,6 +11,7 @@ create extension if not exists pgcrypto;
 create table if not exists public.households (
   id uuid primary key default gen_random_uuid(),
   name text,
+  invite_code text unique not null default upper(substr(md5(random()::text), 1, 6)),
   created_at timestamptz not null default now()
 );
 
@@ -62,32 +63,6 @@ create index if not exists records_cat_id_recorded_at_idx
   on public.records (cat_id, recorded_at desc);
 
 -- ------------------------------------------------------------
--- household_id가 없는 기존 cats를 위한 1회성 백필.
--- household가 이미 하나라도 있으면 아무 것도 하지 않아 재실행해도 안전함.
--- ------------------------------------------------------------
-do $$
-declare
-  v_household_id uuid;
-  v_user_id uuid;
-begin
-  if not exists (select 1 from public.households) then
-    insert into public.households (name) values (null) returning id into v_household_id;
-
-    select id into v_user_id from auth.users order by created_at asc limit 1;
-
-    if v_user_id is not null then
-      insert into public.household_members (household_id, user_id, role)
-      values (v_household_id, v_user_id, 'admin')
-      on conflict do nothing;
-    end if;
-
-    update public.cats set household_id = v_household_id where household_id is null;
-  end if;
-end $$;
-
-alter table public.cats alter column household_id set not null;
-
--- ------------------------------------------------------------
 -- Row Level Security
 -- 같은 household에 속한 계정끼리만 서로의 가구 정보/고양이/기록을
 -- 조회·추가·수정·삭제할 수 있습니다. household_members의 초대(insert)와
@@ -132,6 +107,49 @@ create policy "household_members_delete_admin" on public.household_members
         and hm.role = 'admin'
     )
   );
+
+-- 가구 생성/코드 가입은 household_members_insert_admin 정책을 우회해야 하므로
+-- security definer 함수로 처리합니다.
+create or replace function public.create_household(p_name text default null)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_household_id uuid;
+begin
+  insert into public.households (name) values (p_name) returning id into v_household_id;
+
+  insert into public.household_members (household_id, user_id, role)
+  values (v_household_id, auth.uid(), 'admin');
+
+  return v_household_id;
+end;
+$$;
+
+create or replace function public.join_household_by_code(p_code text)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_household_id uuid;
+begin
+  select id into v_household_id from public.households where invite_code = upper(p_code);
+
+  if v_household_id is null then
+    raise exception '유효하지 않은 코드입니다';
+  end if;
+
+  insert into public.household_members (household_id, user_id, role)
+  values (v_household_id, auth.uid(), 'member')
+  on conflict do nothing;
+
+  return v_household_id;
+end;
+$$;
 
 drop policy if exists "cats_select_authenticated" on public.cats;
 drop policy if exists "cats_insert_authenticated" on public.cats;

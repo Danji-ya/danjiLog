@@ -6,6 +6,7 @@ export type HouseholdRole = "admin" | "member";
 export type Household = {
   id: string;
   name: string | null;
+  invite_code: string;
   created_at: string;
 };
 
@@ -64,7 +65,16 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      create_household: {
+        Args: { p_name?: string | null };
+        Returns: string;
+      };
+      join_household_by_code: {
+        Args: { p_code: string };
+        Returns: string;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
