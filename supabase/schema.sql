@@ -133,7 +133,7 @@ begin
 end;
 $$;
 
-revoke execute on function public.create_household(text) from public;
+revoke execute on function public.create_household(text) from public, anon;
 grant execute on function public.create_household(text) to authenticated;
 
 create or replace function public.join_household_by_code(p_code text)
@@ -159,7 +159,7 @@ begin
 end;
 $$;
 
-revoke execute on function public.join_household_by_code(text) from public;
+revoke execute on function public.join_household_by_code(text) from public, anon;
 grant execute on function public.join_household_by_code(text) to authenticated;
 
 drop policy if exists "cats_select_authenticated" on public.cats;
