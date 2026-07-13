@@ -26,6 +26,8 @@ create table if not exists public.household_members (
   primary key (household_id, user_id)
 );
 
+create index if not exists household_members_user_id_idx on public.household_members (user_id);
+
 -- ------------------------------------------------------------
 -- 3. cats : 고양이 정보 (가구별로 여러 마리 저장 가능, 현재 UI는 1번째만 사용)
 -- ------------------------------------------------------------
@@ -128,6 +130,9 @@ begin
 end;
 $$;
 
+revoke execute on function public.create_household(text) from public;
+grant execute on function public.create_household(text) to authenticated;
+
 create or replace function public.join_household_by_code(p_code text)
 returns uuid
 language plpgsql
@@ -150,6 +155,9 @@ begin
   return v_household_id;
 end;
 $$;
+
+revoke execute on function public.join_household_by_code(text) from public;
+grant execute on function public.join_household_by_code(text) to authenticated;
 
 drop policy if exists "cats_select_authenticated" on public.cats;
 drop policy if exists "cats_insert_authenticated" on public.cats;
