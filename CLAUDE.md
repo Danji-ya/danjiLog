@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-danjiLog is a mobile-first PWA for a family to jointly log a cat's water/food intake. React + Vite + TypeScript + TailwindCSS + Supabase (Postgres + Auth), TanStack Query, React Hook Form + Zod, dayjs, react-router-dom v7.
+danjiLog is a mobile-first PWA for a family to jointly log a cat's water/food intake. React + Vite + TypeScript + TailwindCSS + Supabase (Postgres + Auth), TanStack Query, dayjs, react-router-dom v7.
 
 ## Commands
 

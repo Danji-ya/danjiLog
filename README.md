@@ -57,7 +57,6 @@ Supabase
 | Backend          | Supabase                |
 | Routing          | React Router            |
 | State Management | TanStack Query          |
-| Forms            | React Hook Form, Zod    |
 | Date             | dayjs                   |
 | PWA              | Service Worker          |
 
