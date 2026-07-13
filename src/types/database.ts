@@ -17,7 +17,6 @@ export type CatRecord = {
   type: RecordType;
   amount_ml: number;
   recorded_at: string;
-  created_by: string | null;
   created_at: string;
 };
 

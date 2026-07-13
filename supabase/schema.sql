@@ -30,9 +30,10 @@ create table if not exists public.records (
   type text not null check (type in ('water', 'food')),
   amount_ml integer not null check (amount_ml >= 0),
   recorded_at timestamptz not null,
-  created_by uuid references auth.users (id) on delete set null,
   created_at timestamptz not null default now()
 );
+
+alter table public.records drop column if exists created_by;
 
 create index if not exists records_cat_id_recorded_at_idx
   on public.records (cat_id, recorded_at desc);
@@ -62,14 +63,14 @@ drop policy if exists "cats_delete_authenticated" on public.cats;
 create policy "cats_delete_authenticated" on public.cats
   for delete to authenticated using (true);
 
--- records: 로그인 사용자 전체 CRUD 허용 (작성자와 무관하게 가족 모두 수정/삭제 가능)
+-- records: 로그인 사용자 전체 CRUD 허용
 drop policy if exists "records_select_authenticated" on public.records;
 create policy "records_select_authenticated" on public.records
   for select to authenticated using (true);
 
 drop policy if exists "records_insert_authenticated" on public.records;
 create policy "records_insert_authenticated" on public.records
-  for insert to authenticated with check (auth.uid() = created_by);
+  for insert to authenticated with check (true);
 
 drop policy if exists "records_update_authenticated" on public.records;
 create policy "records_update_authenticated" on public.records

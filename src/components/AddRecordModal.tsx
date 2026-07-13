@@ -87,7 +87,7 @@ export default function AddRecordModal({
     if (isEditing && editingRecord) {
       await updateRecord.mutateAsync({ id: editingRecord.id, type, amountMl: amount, recordedAt });
     } else {
-      await createRecord.mutateAsync({ catId, type, amountMl: amount, recordedAt, createdBy: user.id });
+      await createRecord.mutateAsync({ catId, type, amountMl: amount, recordedAt });
     }
     success();
     onClose();

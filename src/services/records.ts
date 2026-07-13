@@ -24,7 +24,6 @@ export interface CreateRecordInput {
   type: RecordType;
   amountMl: number;
   recordedAt: string;
-  createdBy: string;
 }
 
 export async function createRecord(input: CreateRecordInput): Promise<CatRecord> {
@@ -35,7 +34,6 @@ export async function createRecord(input: CreateRecordInput): Promise<CatRecord>
       type: input.type,
       amount_ml: input.amountMl,
       recorded_at: input.recordedAt,
-      created_by: input.createdBy,
     })
     .select("*")
     .single();
