@@ -21,13 +21,6 @@ export type CatRecord = {
   created_at: string;
 };
 
-export type Profile = {
-  id: string;
-  email: string;
-  name: string | null;
-  created_at: string;
-};
-
 export type Database = {
   public: {
     Tables: {
@@ -41,12 +34,6 @@ export type Database = {
         Row: CatRecord;
         Insert: Omit<CatRecord, "id" | "created_at"> & { id?: string };
         Update: Partial<Omit<CatRecord, "id">>;
-        Relationships: [];
-      };
-      profiles: {
-        Row: Profile;
-        Insert: Partial<Profile> & { id: string; email: string };
-        Update: Partial<Profile>;
         Relationships: [];
       };
     };
