@@ -46,7 +46,6 @@ export default function HomePage() {
       <div className="flex h-full flex-col items-center justify-center gap-2 py-24 text-center text-ios-gray-500">
         <Cat className="h-9 w-9 text-ios-gray-400" />
         <p className="text-sm">등록된 고양이가 없어요.</p>
-        <p className="text-xs text-ios-gray-400">Supabase에서 cats 테이블에 고양이를 추가해주세요.</p>
       </div>
     );
   }

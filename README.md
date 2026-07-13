@@ -77,12 +77,25 @@ npm install
 2. Run `supabase/schema.sql` in the SQL Editor.
 3. Create a shared account in **Authentication → Users**.
 4. (Optional) Disable **Confirm email** to allow immediate login.
+5. There's no sign-up or cat-management UI yet, so create your first household and cat by hand in the SQL Editor:
+
+   ```sql
+   do $$
+   declare
+     v_household_id uuid;
+     v_user_id uuid;
+   begin
+     select id into v_user_id from auth.users order by created_at asc limit 1;
+     insert into public.households (name, created_by) values (null, v_user_id) returning id into v_household_id;
+     insert into public.household_members (household_id, user_id, role) values (v_household_id, v_user_id, 'admin');
+     insert into public.cats (household_id, name) values (v_household_id, 'Your Cat');
+   end $$;
+   ```
 
 The provided schema will:
 
-* Create the required database tables
-* Apply Row Level Security (RLS) policies
-* Insert a default cat record
+* Create the required database tables (`households`, `household_members`, `cats`, `records`)
+* Apply Row Level Security (RLS) policies scoped per household
 
 ---
 
@@ -146,8 +159,7 @@ src
 
 ## 🔮 Future Plans
 
+* Sign-up with household invite codes
 * Multi-cat support
-* Health records
 * Push notifications
 * Data export
-* Home screen widgets
