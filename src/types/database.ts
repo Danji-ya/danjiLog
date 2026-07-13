@@ -1,9 +1,24 @@
 export type RecordType = "water" | "food";
+export type HouseholdRole = "admin" | "member";
 
 // 주의: interface는 Supabase의 GenericSchema 제약(Record<string, unknown> 검사)을
 // 만족시키지 못하는 TypeScript 특이 케이스가 있어 반드시 type으로 선언합니다.
+export type Household = {
+  id: string;
+  name: string | null;
+  created_at: string;
+};
+
+export type HouseholdMember = {
+  household_id: string;
+  user_id: string;
+  role: HouseholdRole;
+  created_at: string;
+};
+
 export type Cat = {
   id: string;
+  household_id: string;
   name: string;
   photo_url: string | null;
   weight: number | null;
@@ -23,9 +38,21 @@ export type CatRecord = {
 export type Database = {
   public: {
     Tables: {
+      households: {
+        Row: Household;
+        Insert: Partial<Household> & { id?: string };
+        Update: Partial<Household>;
+        Relationships: [];
+      };
+      household_members: {
+        Row: HouseholdMember;
+        Insert: Partial<HouseholdMember> & { household_id: string; user_id: string };
+        Update: Partial<HouseholdMember>;
+        Relationships: [];
+      };
       cats: {
         Row: Cat;
-        Insert: Partial<Cat> & { name: string };
+        Insert: Partial<Cat> & { name: string; household_id: string };
         Update: Partial<Cat>;
         Relationships: [];
       };
