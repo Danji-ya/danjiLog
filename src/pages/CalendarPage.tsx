@@ -7,7 +7,7 @@ import CalendarView from "@/components/CalendarView";
 import RecordList from "@/components/RecordList";
 import AddRecordModal from "@/components/AddRecordModal";
 import PullToRefresh from "@/components/PullToRefresh";
-import { formatDateKey, formatDisplayDate } from "@/utils/date";
+import { dayRangeISO, formatDateKey, formatDisplayDate } from "@/utils/date";
 import type { CatRecord } from "@/types";
 
 export default function CalendarPage() {
@@ -23,10 +23,18 @@ export default function CalendarPage() {
     return { startISO: start.toISOString(), endISO: end.toISOString() };
   }, [month]);
 
-  const { data: monthRecords = [], refetch: refetchRecords } = useRecords(
+  const { data: monthRecords = [], refetch: refetchMonthRecords } = useRecords(
     cat?.id,
     monthRange.startISO,
     monthRange.endISO
+  );
+
+  const selectedDayRange = useMemo(() => dayRangeISO(selectedDate), [selectedDate]);
+
+  const { data: selectedDayRecords = [], refetch: refetchSelectedDayRecords } = useRecords(
+    cat?.id,
+    selectedDayRange.startISO,
+    selectedDayRange.endISO
   );
 
   const markedDates = useMemo(() => {
@@ -34,11 +42,6 @@ export default function CalendarPage() {
     for (const r of monthRecords) set.add(formatDateKey(r.recorded_at));
     return set;
   }, [monthRecords]);
-
-  const selectedDayRecords = useMemo(() => {
-    const key = formatDateKey(selectedDate);
-    return monthRecords.filter((r) => formatDateKey(r.recorded_at) === key);
-  }, [monthRecords, selectedDate]);
 
   const openAdd = () => {
     setEditingRecord(null);
@@ -55,7 +58,9 @@ export default function CalendarPage() {
   return (
     <PullToRefresh
       isDisabled={modalOpen}
-      onRefresh={async () => { await Promise.all([refetchCat(), refetchRecords()]); }}
+      onRefresh={async () => {
+        await Promise.all([refetchCat(), refetchMonthRecords(), refetchSelectedDayRecords()]);
+      }}
     >
       <div className="flex flex-col gap-5 px-4 pb-28 pt-4">
         <header>
