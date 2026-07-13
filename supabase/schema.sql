@@ -60,7 +60,7 @@ create table if not exists public.records (
   created_at timestamptz not null default now()
 );
 
-alter table public.records drop column if exists created_by;
+alter table public.records drop column if exists created_by cascade;
 
 create index if not exists records_cat_id_recorded_at_idx
   on public.records (cat_id, recorded_at desc);
