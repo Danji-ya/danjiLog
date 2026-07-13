@@ -7,6 +7,7 @@ export type Household = {
   id: string;
   name: string | null;
   invite_code: string;
+  created_by: string | null;
   created_at: string;
 };
 

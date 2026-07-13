@@ -12,6 +12,7 @@ create table if not exists public.households (
   id uuid primary key default gen_random_uuid(),
   name text,
   invite_code text unique not null default upper(substr(md5(random()::text), 1, 6)),
+  created_by uuid references auth.users (id),
   created_at timestamptz not null default now()
 );
 
@@ -68,7 +69,8 @@ create index if not exists records_cat_id_recorded_at_idx
 -- Row Level Security
 -- 같은 household에 속한 계정끼리만 서로의 가구 정보/고양이/기록을
 -- 조회·추가·수정·삭제할 수 있습니다. household_members의 초대(insert)와
--- 퇴출(delete)만 role = 'admin'에게 제한되고, 본인은 퇴출 대상에서 제외됩니다.
+-- 퇴출(delete)만 role = 'admin'에게 제한되고, 본인과 그 household의
+-- 창립자(households.created_by)는 퇴출 대상에서 제외됩니다.
 -- ------------------------------------------------------------
 alter table public.households enable row level security;
 alter table public.household_members enable row level security;
@@ -102,6 +104,7 @@ drop policy if exists "household_members_delete_admin" on public.household_membe
 create policy "household_members_delete_admin" on public.household_members
   for delete to authenticated using (
     user_id <> auth.uid()
+    and user_id <> (select created_by from public.households where id = household_members.household_id)
     and exists (
       select 1 from public.household_members hm
       where hm.household_id = household_members.household_id
@@ -121,7 +124,7 @@ as $$
 declare
   v_household_id uuid;
 begin
-  insert into public.households (name) values (p_name) returning id into v_household_id;
+  insert into public.households (name, created_by) values (p_name, auth.uid()) returning id into v_household_id;
 
   insert into public.household_members (household_id, user_id, role)
   values (v_household_id, auth.uid(), 'admin');
