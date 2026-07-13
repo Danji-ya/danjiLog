@@ -77,27 +77,56 @@ alter table public.household_members enable row level security;
 alter table public.cats enable row level security;
 alter table public.records enable row level security;
 
+-- household_members를 참조하는 정책이 household_members 자신을 대상으로 하면
+-- Postgres가 "infinite recursion detected in policy"로 막는다. 아래 두 security
+-- definer 함수로 조회를 우회해서 재귀를 끊는다.
+create or replace function public.my_household_ids()
+returns setof uuid
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select household_id from public.household_members where user_id = auth.uid();
+$$;
+
+revoke execute on function public.my_household_ids() from public, anon;
+grant execute on function public.my_household_ids() to authenticated;
+
+create or replace function public.is_household_admin(p_household_id uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1 from public.household_members
+    where household_id = p_household_id
+      and user_id = auth.uid()
+      and role = 'admin'
+  );
+$$;
+
+revoke execute on function public.is_household_admin(uuid) from public, anon;
+grant execute on function public.is_household_admin(uuid) to authenticated;
+
 drop policy if exists "households_select_member" on public.households;
 create policy "households_select_member" on public.households
   for select to authenticated using (
-    id in (select household_id from public.household_members where user_id = auth.uid())
+    id in (select public.my_household_ids())
   );
 
 drop policy if exists "household_members_select_same_household" on public.household_members;
 create policy "household_members_select_same_household" on public.household_members
   for select to authenticated using (
-    household_id in (select household_id from public.household_members where user_id = auth.uid())
+    household_id in (select public.my_household_ids())
   );
 
 drop policy if exists "household_members_insert_admin" on public.household_members;
 create policy "household_members_insert_admin" on public.household_members
   for insert to authenticated with check (
-    exists (
-      select 1 from public.household_members hm
-      where hm.household_id = household_members.household_id
-        and hm.user_id = auth.uid()
-        and hm.role = 'admin'
-    )
+    public.is_household_admin(household_id)
   );
 
 drop policy if exists "household_members_delete_admin" on public.household_members;
@@ -105,12 +134,7 @@ create policy "household_members_delete_admin" on public.household_members
   for delete to authenticated using (
     user_id <> auth.uid()
     and user_id <> (select created_by from public.households where id = household_members.household_id)
-    and exists (
-      select 1 from public.household_members hm
-      where hm.household_id = household_members.household_id
-        and hm.user_id = auth.uid()
-        and hm.role = 'admin'
-    )
+    and public.is_household_admin(household_id)
   );
 
 -- 가구 생성/코드 가입은 household_members_insert_admin 정책을 우회해야 하므로
@@ -170,27 +194,27 @@ drop policy if exists "cats_delete_authenticated" on public.cats;
 drop policy if exists "cats_select_household" on public.cats;
 create policy "cats_select_household" on public.cats
   for select to authenticated using (
-    household_id in (select household_id from public.household_members where user_id = auth.uid())
+    household_id in (select public.my_household_ids())
   );
 
 drop policy if exists "cats_insert_household" on public.cats;
 create policy "cats_insert_household" on public.cats
   for insert to authenticated with check (
-    household_id in (select household_id from public.household_members where user_id = auth.uid())
+    household_id in (select public.my_household_ids())
   );
 
 drop policy if exists "cats_update_household" on public.cats;
 create policy "cats_update_household" on public.cats
   for update to authenticated using (
-    household_id in (select household_id from public.household_members where user_id = auth.uid())
+    household_id in (select public.my_household_ids())
   ) with check (
-    household_id in (select household_id from public.household_members where user_id = auth.uid())
+    household_id in (select public.my_household_ids())
   );
 
 drop policy if exists "cats_delete_household" on public.cats;
 create policy "cats_delete_household" on public.cats
   for delete to authenticated using (
-    household_id in (select household_id from public.household_members where user_id = auth.uid())
+    household_id in (select public.my_household_ids())
   );
 
 drop policy if exists "records_select_authenticated" on public.records;
@@ -203,7 +227,7 @@ create policy "records_select_household" on public.records
   for select to authenticated using (
     cat_id in (
       select id from public.cats
-      where household_id in (select household_id from public.household_members where user_id = auth.uid())
+      where household_id in (select public.my_household_ids())
     )
   );
 
@@ -212,7 +236,7 @@ create policy "records_insert_household" on public.records
   for insert to authenticated with check (
     cat_id in (
       select id from public.cats
-      where household_id in (select household_id from public.household_members where user_id = auth.uid())
+      where household_id in (select public.my_household_ids())
     )
   );
 
@@ -221,12 +245,12 @@ create policy "records_update_household" on public.records
   for update to authenticated using (
     cat_id in (
       select id from public.cats
-      where household_id in (select household_id from public.household_members where user_id = auth.uid())
+      where household_id in (select public.my_household_ids())
     )
   ) with check (
     cat_id in (
       select id from public.cats
-      where household_id in (select household_id from public.household_members where user_id = auth.uid())
+      where household_id in (select public.my_household_ids())
     )
   );
 
@@ -235,6 +259,6 @@ create policy "records_delete_household" on public.records
   for delete to authenticated using (
     cat_id in (
       select id from public.cats
-      where household_id in (select household_id from public.household_members where user_id = auth.uid())
+      where household_id in (select public.my_household_ids())
     )
   );
