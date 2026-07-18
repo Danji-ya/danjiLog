@@ -9,7 +9,6 @@ import {
   useLastNotificationCheck,
   useMealReminderSettings,
   useNotificationDiagnostics,
-  useSendTestPush,
   useUpdateMealReminderSettings,
 } from "@/hooks/useNotificationSettings";
 import type { PushSubscribeResult } from "@/services/notifications";
@@ -24,7 +23,6 @@ export default function MealReminderSection() {
   const { cat } = usePrimaryCat();
   const { data: settings } = useMealReminderSettings(cat?.id);
   const updateSettings = useUpdateMealReminderSettings();
-  const sendTestPush = useSendTestPush();
   const { data: diagnostics } = useNotificationDiagnostics();
   const { data: lastCheck } = useLastNotificationCheck(cat?.household_id);
 
@@ -145,20 +143,6 @@ export default function MealReminderSection() {
             label="마지막 확인"
             value={lastCheck ? dayjs(lastCheck).format("M월 D일 HH:mm") : "기록 없음"}
           />
-          <button
-            type="button"
-            onClick={() => sendTestPush.mutate()}
-            disabled={sendTestPush.isPending}
-            className="mt-2 rounded-ios bg-ios-gray-100 py-2.5 text-center text-[13px] font-medium text-ios-gray-900 transition active:opacity-70 disabled:opacity-50 dark:bg-ios-gray-800 dark:text-white"
-          >
-            {sendTestPush.isPending
-              ? "보내는 중..."
-              : sendTestPush.isSuccess
-                ? "테스트 알림을 보냈어요"
-                : sendTestPush.isError
-                  ? `실패: ${(sendTestPush.error as Error).message}`
-                  : "테스트 Push 보내기"}
-          </button>
         </div>
       </details>
 

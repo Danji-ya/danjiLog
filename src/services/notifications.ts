@@ -110,45 +110,6 @@ export async function updateMealReminderSettings(input: UpdateMealReminderInput)
   return { ok: true };
 }
 
-function functionsUrl(path: string): string {
-  const base = (import.meta.env.VITE_SUPABASE_URL as string).replace(/\/$/, "");
-  return `${base}/functions/v1${path}`;
-}
-
-export async function sendTestPush(): Promise<{ status: string }> {
-  if (!("serviceWorker" in navigator)) {
-    throw new Error("이 브라우저는 푸시 알림을 지원하지 않습니다.");
-  }
-
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.getSubscription();
-  if (!subscription) {
-    throw new Error("이 기기에 등록된 구독이 없습니다.");
-  }
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  if (!session) {
-    throw new Error("로그인이 필요합니다.");
-  }
-
-  const response = await fetch(functionsUrl("/send-test-push"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify({ endpoint: subscription.endpoint }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`테스트 알림 발송에 실패했습니다 (${response.status}).`);
-  }
-
-  return response.json();
-}
-
 export interface NotificationDiagnostics {
   supported: boolean;
   iosNotInstalled: boolean;

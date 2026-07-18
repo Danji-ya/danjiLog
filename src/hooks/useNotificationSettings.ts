@@ -3,7 +3,6 @@ import {
   getLastNotificationCheck,
   getMealReminderSettings,
   getNotificationDiagnostics,
-  sendTestPush,
   updateMealReminderSettings,
   type UpdateMealReminderInput,
 } from "@/services/notifications";
@@ -27,12 +26,6 @@ export function useUpdateMealReminderSettings() {
         queryClient.invalidateQueries({ queryKey: queryKeys.notificationSettings(input.catId) });
       }
     },
-  });
-}
-
-export function useSendTestPush() {
-  return useMutation({
-    mutationFn: sendTestPush,
   });
 }
 
