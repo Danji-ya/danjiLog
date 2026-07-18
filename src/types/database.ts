@@ -37,6 +37,27 @@ export type CatRecord = {
   created_at: string;
 };
 
+export type PushSubscriptionRow = {
+  id: string;
+  household_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth_key: string;
+  user_agent: string | null;
+  created_at: string;
+  last_seen_at: string;
+};
+
+export type MealReminderSettings = {
+  id: string;
+  cat_id: string;
+  enabled: boolean;
+  interval_minutes: number;
+  next_notify_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -64,6 +85,23 @@ export type Database = {
         Update: Partial<Omit<CatRecord, "id">>;
         Relationships: [];
       };
+      push_subscriptions: {
+        Row: PushSubscriptionRow;
+        Insert: Partial<PushSubscriptionRow> & {
+          household_id: string;
+          endpoint: string;
+          p256dh: string;
+          auth_key: string;
+        };
+        Update: Partial<PushSubscriptionRow>;
+        Relationships: [];
+      };
+      meal_reminder_settings: {
+        Row: MealReminderSettings;
+        Insert: Partial<MealReminderSettings> & { cat_id: string; interval_minutes: number };
+        Update: Partial<MealReminderSettings>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -74,6 +112,20 @@ export type Database = {
       join_household_by_code: {
         Args: { p_code: string };
         Returns: string;
+      };
+      upsert_push_subscription: {
+        Args: {
+          p_household_id: string;
+          p_endpoint: string;
+          p_p256dh: string;
+          p_auth_key: string;
+          p_user_agent?: string | null;
+        };
+        Returns: string;
+      };
+      upsert_meal_reminder_settings: {
+        Args: { p_cat_id: string; p_enabled: boolean; p_interval_minutes: number };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;
