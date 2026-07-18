@@ -180,3 +180,15 @@ export async function getNotificationDiagnostics(): Promise<NotificationDiagnost
     subscribed: Boolean(subscription),
   };
 }
+
+export async function getLastNotificationCheck(householdId: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("notification_log")
+    .select("ran_at")
+    .eq("household_id", householdId)
+    .order("ran_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data?.ran_at ?? null;
+}

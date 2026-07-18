@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  getLastNotificationCheck,
   getMealReminderSettings,
   getNotificationDiagnostics,
   sendTestPush,
@@ -40,5 +41,14 @@ export function useNotificationDiagnostics() {
     queryKey: ["notificationDiagnostics"] as const,
     queryFn: getNotificationDiagnostics,
     staleTime: 0,
+  });
+}
+
+export function useLastNotificationCheck(householdId: string | undefined) {
+  return useQuery({
+    queryKey: ["lastNotificationCheck", householdId] as const,
+    queryFn: () => getLastNotificationCheck(householdId as string),
+    enabled: Boolean(householdId),
+    staleTime: 1000 * 60,
   });
 }

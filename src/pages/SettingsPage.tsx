@@ -2,6 +2,7 @@ import { useState } from "react";
 import pkg from "../../package.json";
 import { useDarkMode } from "@/hooks/useDarkMode";
 import { signOut } from "@/services/auth";
+import MealReminderSection from "@/components/MealReminderSection";
 
 export default function SettingsPage() {
   const { isDark, toggle } = useDarkMode();
@@ -47,6 +48,8 @@ export default function SettingsPage() {
           <span className="text-[15px] text-ios-gray-400">{pkg.version}</span>
         </div>
       </section>
+
+      <MealReminderSection />
 
       <section className="overflow-hidden rounded-ios-lg bg-white shadow-card dark:bg-ios-gray-900">
         <button

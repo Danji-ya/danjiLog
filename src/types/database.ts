@@ -58,6 +58,19 @@ export type MealReminderSettings = {
   updated_at: string;
 };
 
+export type NotificationLog = {
+  id: string;
+  household_id: string;
+  cat_id: string | null;
+  kind: string;
+  ran_at: string;
+  attempted: number;
+  succeeded: number;
+  failed: number;
+  detail: unknown;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -100,6 +113,12 @@ export type Database = {
         Row: MealReminderSettings;
         Insert: Partial<MealReminderSettings> & { cat_id: string; interval_minutes: number };
         Update: Partial<MealReminderSettings>;
+        Relationships: [];
+      };
+      notification_log: {
+        Row: NotificationLog;
+        Insert: Partial<NotificationLog> & { household_id: string };
+        Update: Partial<NotificationLog>;
         Relationships: [];
       };
     };
