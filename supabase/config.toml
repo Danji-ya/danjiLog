@@ -371,6 +371,11 @@ authorization_url_path = "/oauth/consent"
 # Allow dynamic client registration
 allow_dynamic_registration = false
 
+[functions.send-meal-reminders]
+# pg_cron이 x-cron-secret 헤더로만 호출하고 사용자 JWT는 없다 — 기본값(true)이면
+# Supabase 게이트웨이가 우리 x-cron-secret 체크보다 먼저 401로 막아버린다.
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 # Supported request policies: `oneshot`, `per_worker`.
