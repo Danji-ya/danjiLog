@@ -264,7 +264,7 @@ create policy "records_delete_household" on public.records
   );
 
 -- ------------------------------------------------------------
--- 식사 알림(Web Push) — docs/notification-*.md 참고
+-- 식사 알림(Web Push)
 -- ------------------------------------------------------------
 
 -- 5. push_subscriptions : 기기별 Web Push 구독
