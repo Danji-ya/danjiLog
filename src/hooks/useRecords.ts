@@ -18,13 +18,16 @@ export function useRecords(catId: string | undefined, startISO: string, endISO: 
   });
 }
 
+function invalidateRecordQueries(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: ["records"] });
+  queryClient.invalidateQueries({ queryKey: ["notificationSettings"] });
+}
+
 export function useCreateRecord() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateRecordInput) => createRecord(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["records"] });
-    },
+    onSuccess: () => invalidateRecordQueries(queryClient),
   });
 }
 
@@ -32,9 +35,7 @@ export function useUpdateRecord() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: UpdateRecordInput) => updateRecord(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["records"] });
-    },
+    onSuccess: () => invalidateRecordQueries(queryClient),
   });
 }
 
@@ -42,8 +43,6 @@ export function useDeleteRecord() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteRecord(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["records"] });
-    },
+    onSuccess: () => invalidateRecordQueries(queryClient),
   });
 }
