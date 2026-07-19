@@ -61,14 +61,12 @@ export type MealReminderSettings = {
 export type NotificationLog = {
   id: string;
   household_id: string;
-  cat_id: string | null;
   kind: string;
+  dedup_key: string | null;
   ran_at: string;
   attempted: number;
   succeeded: number;
-  failed: number;
   detail: unknown;
-  created_at: string;
 };
 
 export type Database = {

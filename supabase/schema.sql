@@ -334,22 +334,25 @@ create policy "meal_reminder_settings_select_household" on public.meal_reminder_
     cat_id in (select id from public.cats where household_id in (select public.my_household_ids()))
   );
 
--- 7. notification_log : 진단 전용 (사용자 노출 이력 아님)
+-- 7. notification_log : 범용 알림 이력 겸 종류별 1회 판정용. 임의로 지우지 말 것.
+-- 대상은 dedup_key(불투명 키)로 다루고, 부가 정보(cat_id 등)는 detail에 넣는다.
 create table if not exists public.notification_log (
   id uuid primary key default gen_random_uuid(),
   household_id uuid not null references public.households (id) on delete cascade,
-  cat_id uuid references public.cats (id) on delete set null,
-  kind text not null default 'meal_reminder',
+  kind text not null,
+  dedup_key text,
   ran_at timestamptz not null default now(),
   attempted int not null default 0,
   succeeded int not null default 0,
-  failed int not null default 0,
-  detail jsonb,
-  created_at timestamptz not null default now()
+  detail jsonb
 );
 
 create index if not exists notification_log_household_ran_at_idx
   on public.notification_log (household_id, ran_at desc);
+
+create index if not exists notification_log_dedup_idx
+  on public.notification_log (kind, dedup_key)
+  where dedup_key is not null and succeeded > 0;
 
 alter table public.notification_log enable row level security;
 
@@ -365,6 +368,35 @@ create index if not exists records_cat_food_recorded_at_idx
   on public.records (cat_id, recorded_at desc)
   where type = 'food';
 
+-- 마지막 식사 기준 다음 알림 시각. 이미 울린 식사거나 식사가 없으면 null.
+create or replace function public.meal_reminder_next_at(
+  p_cat_id uuid,
+  p_interval_minutes int
+)
+returns timestamptz
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select case
+           when exists (
+             select 1 from public.notification_log l
+             where l.kind = 'meal_reminder'
+               and l.dedup_key = r.id::text
+               and l.succeeded > 0
+           )
+           then null
+           else r.recorded_at + (p_interval_minutes || ' minutes')::interval
+         end
+  from public.records r
+  where r.cat_id = p_cat_id and r.type = 'food'
+  order by r.recorded_at desc
+  limit 1;
+$$;
+
+revoke execute on function public.meal_reminder_next_at(uuid, int) from public, anon, authenticated;
+
 -- next_notify_at 재계산 트리거 (records INSERT/UPDATE/DELETE 전부 감시)
 create or replace function public.recompute_meal_reminder_next_notify()
 returns trigger
@@ -375,11 +407,7 @@ as $$
 begin
   update public.meal_reminder_settings s
   set next_notify_at = case
-        when s.enabled then (
-          select max(recorded_at) + (s.interval_minutes || ' minutes')::interval
-          from public.records
-          where cat_id = s.cat_id and type = 'food'
-        )
+        when s.enabled then public.meal_reminder_next_at(s.cat_id, s.interval_minutes)
         else null
       end,
       updated_at = now()
@@ -454,7 +482,7 @@ $$;
 revoke execute on function public.upsert_push_subscription(uuid, text, text, text, text) from public, anon;
 grant execute on function public.upsert_push_subscription(uuid, text, text, text, text) to authenticated;
 
--- RPC: upsert_meal_reminder_settings — next_notify_at은 쓰기 시점에 상관 서브쿼리로 라이브 계산
+-- RPC: upsert_meal_reminder_settings — next_notify_at은 쓰기 시점에 헬퍼로 라이브 계산
 -- (트리거와 동일 방식, 미리 계산해두면 트리거와 TOCTOU 경합이 생김)
 create or replace function public.upsert_meal_reminder_settings(
   p_cat_id uuid,
@@ -476,20 +504,14 @@ begin
     p_cat_id,
     p_enabled,
     p_interval_minutes,
-    case when p_enabled then (
-      select max(recorded_at) + (p_interval_minutes || ' minutes')::interval
-      from public.records
-      where cat_id = p_cat_id and type = 'food'
-    ) else null end
+    case when p_enabled then public.meal_reminder_next_at(p_cat_id, p_interval_minutes) else null end
   )
   on conflict (cat_id) do update set
     enabled = excluded.enabled,
     interval_minutes = excluded.interval_minutes,
-    next_notify_at = case when excluded.enabled then (
-      select max(recorded_at) + (excluded.interval_minutes || ' minutes')::interval
-      from public.records
-      where cat_id = meal_reminder_settings.cat_id and type = 'food'
-    ) else null end,
+    next_notify_at = case when excluded.enabled
+      then public.meal_reminder_next_at(meal_reminder_settings.cat_id, excluded.interval_minutes)
+      else null end,
     updated_at = now();
 end;
 $$;
