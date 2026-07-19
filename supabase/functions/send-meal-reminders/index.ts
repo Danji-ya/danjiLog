@@ -83,8 +83,8 @@ Deno.serve(async (req) => {
         `;
 
         const payload = {
-          title: `${row.cat_name} 밥 줄 시간이에요`,
-          body: `마지막 식사로부터 약 ${formatElapsed(row.interval_minutes)} 지났어요.`,
+          title: `${row.cat_name} 식사 알림`,
+          body: `마지막 식사 후 약 ${formatElapsed(row.interval_minutes)} 지났어요.`,
         };
 
         let succeeded = 0;
