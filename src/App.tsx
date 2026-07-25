@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { TodayProvider } from "@/contexts/TodayContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
 import MobileLayout from "@/layouts/MobileLayout";
@@ -24,29 +25,31 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            element={
-              <ProtectedRoute>
-                <MobileLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/" element={<HomePage />} />
+        <TodayProvider>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
             <Route
-              path="/stats"
               element={
-                <Suspense fallback={<PageFallback />}>
-                  <StatsPage />
-                </Suspense>
+                <ProtectedRoute>
+                  <MobileLayout />
+                </ProtectedRoute>
               }
-            />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
+            >
+              <Route path="/" element={<HomePage />} />
+              <Route
+                path="/stats"
+                element={
+                  <Suspense fallback={<PageFallback />}>
+                    <StatsPage />
+                  </Suspense>
+                }
+              />
+              <Route path="/calendar" element={<CalendarPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </TodayProvider>
       </AuthProvider>
     </BrowserRouter>
   );

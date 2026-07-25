@@ -1,10 +1,12 @@
 import { useMemo } from "react";
 import dayjs from "@/lib/dayjs";
 import { dayRangeISO } from "@/utils/date";
+import { useTodayKey } from "@/contexts/TodayContext";
 import { useRecords } from "@/hooks/useRecords";
 
 export function useTodaySummary(catId: string | undefined) {
-  const { startISO, endISO } = useMemo(() => dayRangeISO(dayjs()), []);
+  const todayKey = useTodayKey();
+  const { startISO, endISO } = useMemo(() => dayRangeISO(dayjs(todayKey)), [todayKey]);
   const query = useRecords(catId, startISO, endISO);
 
   const summary = useMemo(() => {

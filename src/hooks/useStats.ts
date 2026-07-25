@@ -1,11 +1,17 @@
 import { useMemo } from "react";
+import dayjs from "@/lib/dayjs";
 import { useRecords } from "@/hooks/useRecords";
 import { periodRangeISO } from "@/utils/date";
+import { useTodayKey } from "@/contexts/TodayContext";
 import { aggregate, buildDailyStats } from "@/utils/stats";
 import type { StatsPeriod } from "@/types";
 
 export function useStats(catId: string | undefined, period: StatsPeriod) {
-  const { startISO, endISO, days } = useMemo(() => periodRangeISO(period), [period]);
+  const todayKey = useTodayKey();
+  const { startISO, endISO, days } = useMemo(
+    () => periodRangeISO(period, dayjs(todayKey)),
+    [period, todayKey]
+  );
   const query = useRecords(catId, startISO, endISO);
 
   const daily = useMemo(

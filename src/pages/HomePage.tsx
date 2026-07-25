@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Cat, Plus } from "lucide-react";
 import dayjs from "@/lib/dayjs";
 import { usePrimaryCat } from "@/hooks/useCats";
+import { useTodayKey } from "@/contexts/TodayContext";
 import { useTodaySummary } from "@/hooks/useTodaySummary";
+import { formatDisplayDate } from "@/utils/date";
 import TodaySummary from "@/components/TodaySummary";
 import RecordList from "@/components/RecordList";
 import AddRecordModal from "@/components/AddRecordModal";
@@ -10,6 +12,7 @@ import PullToRefresh from "@/components/PullToRefresh";
 import type { CatRecord } from "@/types";
 
 export default function HomePage() {
+  const todayKey = useTodayKey();
   const { cat, isLoading: catLoading, refetch: refetchCat } = usePrimaryCat();
   const {
     water,
@@ -59,7 +62,7 @@ export default function HomePage() {
         <header>
           <div className="flex items-center justify-between">
             <p className="text-sm text-ios-gray-500 dark:text-ios-gray-400">
-              {dayjs().format("YYYY년 M월 D일 (ddd)")}
+              {formatDisplayDate(todayKey)}
             </p>
             {dataUpdatedAt > 0 && (
               <p className="text-xs text-ios-gray-400 dark:text-ios-gray-500">
