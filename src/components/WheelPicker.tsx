@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, type RefObject } from "react";
+import { useLatest } from "@/hooks/useLatest";
 
 export interface WheelPickerOption {
   value: number;
@@ -11,19 +12,41 @@ interface WheelPickerProps {
   onChange: (value: number) => void;
   itemHeight?: number;
   visibleCount?: number;
-  /** true면 마지막 항목 다음에 첫 항목으로 자연스럽게 이어지는 무한 순환 스크롤이 됩니다. */
   loop?: boolean;
   className?: string;
   "aria-label"?: string;
 }
 
-// loop 모드에서 옵션 배열을 반복할 횟수(홀수, 가운데 블록을 기준 위치로 사용)
 const LOOP_REPEAT = 7;
+const MIDDLE_BLOCK = Math.floor(LOOP_REPEAT / 2);
+const SNAP_TOLERANCE_PX = 1;
+const SCROLL_SETTLE_MS = 120;
 
-/**
- * iOS 스타일 롤러(Wheel) 피커.
- * CSS scroll-snap으로 구현해 네이티브 스크롤 관성/플릭을 그대로 활용합니다.
- */
+const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
+
+const sameValueInMiddleBlock = (index: number, size: number) => MIDDLE_BLOCK * size + (index % size);
+
+function useScrollSettle(ref: RefObject<HTMLElement>, onSettle: () => void) {
+  const onSettleRef = useLatest(onSettle);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let timer: ReturnType<typeof setTimeout>;
+    const handleScroll = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => onSettleRef.current(), SCROLL_SETTLE_MS);
+    };
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+      clearTimeout(timer);
+    };
+  }, [ref, onSettleRef]);
+}
+
 export default function WheelPicker({
   options,
   value,
@@ -35,79 +58,54 @@ export default function WheelPicker({
   "aria-label": ariaLabel,
 }: WheelPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
-  const padding = (itemHeight * (visibleCount - 1)) / 2;
-  const middleBlock = Math.floor(LOOP_REPEAT / 2);
+  const centerOffset = (itemHeight * (visibleCount - 1)) / 2;
 
-  // loop 모드에서는 원본 옵션을 여러 벌 이어붙여 렌더링합니다.
-  // 각 블록은 원본을 그대로 반복한 것이라 인덱스 i의 값은 options[i % options.length]와 동일합니다.
   const displayOptions = useMemo(
     () => (loop ? Array.from({ length: LOOP_REPEAT }, () => options).flat() : options),
     [loop, options]
   );
 
-  const indexOfValue = (v: number) => {
-    const idx = options.findIndex((o) => o.value === v);
-    return idx === -1 ? 0 : idx;
-  };
+  const scrollIndexOf = useCallback(
+    (v: number) => {
+      const found = options.findIndex((o) => o.value === v);
+      const index = found === -1 ? 0 : found;
+      return loop ? sameValueInMiddleBlock(index, options.length) : index;
+    },
+    [options, loop]
+  );
 
-  const targetIndex = (v: number) => (loop ? middleBlock * options.length : 0) + indexOfValue(v);
-
-  // value prop이 외부에서 바뀌면 해당 위치로 스크롤 (loop 모드에서는 항상 가운데 블록 기준)
   useLayoutEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const idx = targetIndex(value);
-    const targetTop = idx * itemHeight;
-    if (Math.abs(el.scrollTop - targetTop) > 1) {
+    const targetTop = scrollIndexOf(value) * itemHeight;
+    if (Math.abs(el.scrollTop - targetTop) > SNAP_TOLERANCE_PX) {
       el.scrollTop = targetTop;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, options, itemHeight, loop]);
+  }, [value, itemHeight, scrollIndexOf]);
 
-  useEffect(() => {
+  useScrollSettle(containerRef, () => {
     const el = containerRef.current;
     if (!el) return;
 
-    const handleScroll = () => {
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    let index = clamp(Math.round(el.scrollTop / itemHeight), 0, displayOptions.length - 1);
 
-      scrollTimeoutRef.current = setTimeout(() => {
-        let finalIndex = Math.min(
-          Math.max(Math.round(el.scrollTop / itemHeight), 0),
-          displayOptions.length - 1
-        );
+    if (loop) {
+      const recentered = sameValueInMiddleBlock(index, options.length);
+      if (recentered !== index) {
+        index = recentered;
+        el.scrollTop = index * itemHeight;
+      }
+    }
 
-        // 가운데 블록에서 너무 멀어졌으면, 같은 패턴이 반복되는 블록이라 티 나지 않게
-        // 가운데 블록의 대응 위치로 즉시(비-스무스) 되돌려 앞뒤로 순환할 여유를 계속 확보합니다.
-        if (loop) {
-          const block = Math.floor(finalIndex / options.length);
-          if (block !== middleBlock) {
-            finalIndex = middleBlock * options.length + (finalIndex % options.length);
-            el.scrollTop = finalIndex * itemHeight;
-          }
-        }
+    const option = displayOptions[index];
+    if (option && option.value !== value) {
+      onChange(option.value);
+    }
+  });
 
-        const option = displayOptions[finalIndex];
-        if (option && option.value !== value) {
-          onChange(option.value);
-        }
-      }, 120);
-    };
-
-    el.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", handleScroll);
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displayOptions, itemHeight, value, onChange, loop, options.length]);
-
-  const handleItemClick = (idx: number) => {
-    const el = containerRef.current;
-    if (!el) return;
-    el.scrollTo({ top: idx * itemHeight, behavior: "smooth" });
+  const scrollToItem = (index: number) => {
+    containerRef.current?.scrollTo({ top: index * itemHeight, behavior: "smooth" });
   };
 
   return (
@@ -117,28 +115,26 @@ export default function WheelPicker({
       aria-label={ariaLabel}
       role="listbox"
     >
-      {/* 선택 영역 표시 (중앙 가로줄) */}
       <div
         className="pointer-events-none absolute left-0 right-0 z-10 border-y border-ios-gray-300 dark:border-ios-gray-700"
-        style={{ top: padding, height: itemHeight }}
+        style={{ top: centerOffset, height: itemHeight }}
       />
-      {/* 상/하단 페이드 */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-1/3 bg-gradient-to-b from-white to-transparent dark:from-ios-gray-900" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-1/3 bg-gradient-to-t from-white to-transparent dark:from-ios-gray-900" />
 
       <div
         ref={containerRef}
         className="no-scrollbar h-full snap-y snap-mandatory overflow-y-scroll"
-        style={{ paddingTop: padding, paddingBottom: padding }}
+        style={{ paddingTop: centerOffset, paddingBottom: centerOffset }}
       >
-        {displayOptions.map((option, idx) => {
+        {displayOptions.map((option, index) => {
           const selected = option.value === value;
           return (
             <div
-              key={loop ? idx : option.value}
+              key={loop ? index : option.value}
               role="option"
               aria-selected={selected}
-              onClick={() => handleItemClick(idx)}
+              onClick={() => scrollToItem(index)}
               className="flex snap-center items-center justify-center"
               style={{ height: itemHeight }}
             >
