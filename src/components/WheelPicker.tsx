@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
-import { useHaptic } from "@/hooks/useHaptic";
 
 export interface WheelPickerOption {
   value: number;
@@ -36,10 +35,7 @@ export default function WheelPicker({
   "aria-label": ariaLabel,
 }: WheelPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { tap } = useHaptic();
-  const lastIndexRef = useRef<number>(-1);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const isProgrammaticScroll = useRef(false);
 
   const padding = (itemHeight * (visibleCount - 1)) / 2;
   const middleBlock = Math.floor(LOOP_REPEAT / 2);
@@ -65,10 +61,8 @@ export default function WheelPicker({
     const idx = targetIndex(value);
     const targetTop = idx * itemHeight;
     if (Math.abs(el.scrollTop - targetTop) > 1) {
-      isProgrammaticScroll.current = true;
       el.scrollTop = targetTop;
     }
-    lastIndexRef.current = idx;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, options, itemHeight, loop]);
 
@@ -79,16 +73,7 @@ export default function WheelPicker({
     const handleScroll = () => {
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
-      const rawIndex = Math.round(el.scrollTop / itemHeight);
-      const clamped = Math.min(Math.max(rawIndex, 0), displayOptions.length - 1);
-
-      if (clamped !== lastIndexRef.current && !isProgrammaticScroll.current) {
-        lastIndexRef.current = clamped;
-        tap();
-      }
-
       scrollTimeoutRef.current = setTimeout(() => {
-        isProgrammaticScroll.current = false;
         let finalIndex = Math.min(
           Math.max(Math.round(el.scrollTop / itemHeight), 0),
           displayOptions.length - 1
@@ -100,7 +85,6 @@ export default function WheelPicker({
           const block = Math.floor(finalIndex / options.length);
           if (block !== middleBlock) {
             finalIndex = middleBlock * options.length + (finalIndex % options.length);
-            isProgrammaticScroll.current = true;
             el.scrollTop = finalIndex * itemHeight;
           }
         }

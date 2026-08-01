@@ -1,7 +1,6 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { RefreshCw } from "lucide-react";
 import { usePullToRefresh } from "use-pull-to-refresh";
-import { useHaptic } from "@/hooks/useHaptic";
 
 interface PullToRefreshProps {
   onRefresh: () => void | Promise<void>;
@@ -19,9 +18,6 @@ const MAX_PULL_LENGTH = 100;
  * window 스크롤을 기준으로 동작하는 usePullToRefresh를 그대로 사용합니다.
  */
 export default function PullToRefresh({ onRefresh, children, isDisabled }: PullToRefreshProps) {
-  const { tap } = useHaptic();
-  const crossedThresholdRef = useRef(false);
-
   const { isRefreshing, pullPosition } = usePullToRefresh({
     onRefresh,
     refreshThreshold: REFRESH_THRESHOLD,
@@ -29,12 +25,6 @@ export default function PullToRefresh({ onRefresh, children, isDisabled }: PullT
     enableResistance: true,
     isDisabled,
   });
-
-  useEffect(() => {
-    const crossed = pullPosition >= REFRESH_THRESHOLD;
-    if (crossed && !crossedThresholdRef.current) tap();
-    crossedThresholdRef.current = crossed;
-  }, [pullPosition, tap]);
 
   const progress = Math.min(pullPosition / REFRESH_THRESHOLD, 1);
   const active = isRefreshing || pullPosition > 0;

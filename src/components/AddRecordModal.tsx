@@ -6,7 +6,6 @@ import TimeWheelPicker, { type TimeValue } from "@/components/TimeWheelPicker";
 import AmountWheelPicker from "@/components/AmountWheelPicker";
 import { useCreateRecord, useDeleteRecord, useUpdateRecord } from "@/hooks/useRecords";
 import { useAuth } from "@/contexts/AuthContext";
-import { useHaptic } from "@/hooks/useHaptic";
 import type { CatRecord, RecordType } from "@/types";
 
 interface AddRecordModalProps {
@@ -41,7 +40,6 @@ export default function AddRecordModal({
   const [amount, setAmount] = useState(30);
 
   const { user } = useAuth();
-  const { success } = useHaptic();
   const createRecord = useCreateRecord();
   const updateRecord = useUpdateRecord();
   const deleteRecord = useDeleteRecord();
@@ -89,7 +87,6 @@ export default function AddRecordModal({
     } else {
       await createRecord.mutateAsync({ catId, type, amountMl: amount, recordedAt });
     }
-    success();
     onClose();
   };
 
